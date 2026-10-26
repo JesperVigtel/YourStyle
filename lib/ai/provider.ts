@@ -33,6 +33,8 @@ export class AiError extends Error {
   constructor(
     public userMessage: string,
     detail?: string,
+    /** Tokens billed before the failure (e.g. refusal or max_tokens), so they still get logged. */
+    public usage?: { model: string; inputTokens: number; outputTokens: number },
   ) {
     super(detail ? `${userMessage} (${detail})` : userMessage);
     this.name = "AiError";

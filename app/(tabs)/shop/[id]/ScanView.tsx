@@ -27,7 +27,10 @@ import type { Item, Scan } from "@/lib/types";
 export default function ScanView() {
   const { id } = useParams<{ id: string }>();
   const key = `/api/scans/${id}`;
-  const { data, error } = useSWR<{ scan: Scan; item: Item | null }>(key, fetcher);
+  const { data, error } = useSWR<{ scan: Scan; item: Item | null }>(key, fetcher, {
+    // Still being evaluated (e.g. by a request that's still running): poll until it's done.
+    refreshInterval: (d) => (d?.scan.status === "pending" ? 2000 : 0),
+  });
   const { items } = useItems();
   const byId = useMemo(() => new Map((items ?? []).map((i) => [i.id, i])), [items]);
   const [busy, setBusy] = useState<string | null>(null);
@@ -107,6 +110,15 @@ export default function ScanView() {
             <Skeleton className="h-24 w-full" />
             <Skeleton className="h-40 w-full" />
           </div>
+        )}
+
+        {scan?.status === "pending" && (
+          <Card className="text-center">
+            <div className="flex flex-col items-center gap-3 py-6" aria-live="polite">
+              <Spinner className="h-8 w-8 text-accent" />
+              <p className="font-medium">Still checking it against your wardrobe…</p>
+            </div>
+          </Card>
         )}
 
         {scan?.status === "error" && (
@@ -242,7 +254,10 @@ export default function ScanView() {
                 <p className="text-sm">
                   Bought ✓ — it&apos;s in your wardrobe.{" "}
                   {scan.item_id && (
-                    <Link className="inline-flex h-11 items-center text-accent underline" href={`/wardrobe/${scan.item_id}`}>
+                    <Link
+                      className="inline-flex h-11 items-center text-accent underline"
+                      href={`/wardrobe/${scan.item_id}`}
+                    >
                       Open item
                     </Link>
                   )}

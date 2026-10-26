@@ -85,12 +85,13 @@ export async function runTask<I, O, R>(deps: RunDeps, task: TaskDef<I, O, R>, in
     try {
       raw = await deps.provider.call(req, retry);
     } catch (e) {
+      const usage = e instanceof AiError ? e.usage : undefined;
       await safeLog(deps, {
         task: task.name,
-        model: "unknown",
-        input_tokens: 0,
-        output_tokens: 0,
-        est_cost_usd: 0,
+        model: usage?.model ?? "unknown",
+        input_tokens: usage?.inputTokens ?? 0,
+        output_tokens: usage?.outputTokens ?? 0,
+        est_cost_usd: usage ? estimateCostUsd(usage.model, usage.inputTokens, usage.outputTokens) : 0,
         latency_ms: Date.now() - started,
         ok: false,
       });

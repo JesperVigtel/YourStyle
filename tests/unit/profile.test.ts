@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { applyListEdit, mergeGenerated, profileForPrompt, removedTexts, visible, type ProfileDraft } from "@/lib/domain/profile";
+import {
+  applyListEdit,
+  mergeGenerated,
+  profileForPrompt,
+  removedTexts,
+  visible,
+  type ProfileDraft,
+} from "@/lib/domain/profile";
 
 const current: ProfileDraft = {
   summary: "Likes muted colours.",
@@ -29,12 +36,19 @@ describe("mergeGenerated — my edits are never overwritten", () => {
   });
 
   it("does not re-add an entry I removed", () => {
-    const next = mergeGenerated(current, { summary: "s", hard_rules: ["Never wear socks with sandals"], soft_preferences: [] });
+    const next = mergeGenerated(current, {
+      summary: "s",
+      hard_rules: ["Never wear socks with sandals"],
+      soft_preferences: [],
+    });
     expect(visible(next.hard_rules).map((e) => e.text)).not.toContain("Never wear socks with sandals");
   });
 
   it("keeps a summary I wrote", () => {
-    const next = mergeGenerated({ ...current, summary: "Mine", summary_source: "user" }, { summary: "AI", hard_rules: [], soft_preferences: [] });
+    const next = mergeGenerated(
+      { ...current, summary: "Mine", summary_source: "user" },
+      { summary: "AI", hard_rules: [], soft_preferences: [] },
+    );
     expect(next.summary).toBe("Mine");
     expect(next.summary_source).toBe("user");
   });
@@ -70,7 +84,9 @@ describe("applyListEdit", () => {
   });
   it("re-adding a removed entry revives it", () => {
     const out = applyListEdit(list, [{ text: "Never wear socks with sandals", source: "user" }]);
-    expect(out.filter((e) => e.text === "Never wear socks with sandals")).toEqual([{ text: "Never wear socks with sandals", source: "user" }]);
+    expect(out.filter((e) => e.text === "Never wear socks with sandals")).toEqual([
+      { text: "Never wear socks with sandals", source: "user" },
+    ]);
   });
 });
 

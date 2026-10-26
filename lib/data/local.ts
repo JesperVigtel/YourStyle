@@ -1,7 +1,16 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
-import { applyQuery, DEFAULTS, NotFoundError, type Query, type Repo, type Row, type TableName } from "./repo";
+import {
+  applyQuery,
+  ConflictError,
+  DEFAULTS,
+  NotFoundError,
+  type Query,
+  type Repo,
+  type Row,
+  type TableName,
+} from "./repo";
 
 type Db = Partial<Record<TableName, Row[]>>;
 
@@ -64,7 +73,10 @@ export class LocalRepo implements Repo {
         id: row.id ?? randomUUID(),
         created_at: row.created_at ?? new Date().toISOString(),
       } as unknown as T;
-      (db[table] ??= []).push(full);
+      const rows = (db[table] ??= []);
+      // Same as the primary key in Postgres.
+      if (rows.some((r) => r.id === (full as Row).id)) throw new ConflictError(table, (full as Row).id);
+      rows.push(full);
       return structuredClone(full);
     });
   }

@@ -49,8 +49,16 @@ export default function ItemView() {
 
   const remove = async () => {
     if (!confirm("Delete this item permanently? Archiving keeps its history.")) return;
-    await run("delete", () => api(key, { method: "DELETE" }));
-    router.push("/wardrobe");
+    setBusy("delete");
+    setErr(null);
+    try {
+      await api(key, { method: "DELETE" });
+      mutate("/api/items");
+      router.push("/wardrobe");
+    } catch (e) {
+      setErr(errorMessage(e)); // stay on the page so the failure is visible
+      setBusy(null);
+    }
   };
 
   const costPerWear = item?.price && wear.length ? item.price / wear.length : null;
@@ -106,7 +114,9 @@ export default function ItemView() {
               <>
                 <div className="mt-4 flex flex-wrap gap-2 text-sm">
                   {item.status !== "owned" && (
-                    <span data-testid="status-badge" className="rounded-full bg-warn-soft px-3 py-1 text-warn">{item.status}</span>
+                    <span data-testid="status-badge" className="rounded-full bg-warn-soft px-3 py-1 text-warn">
+                      {item.status}
+                    </span>
                   )}
                   {item.is_reference && (
                     <span className="rounded-full bg-good-soft px-3 py-1 text-good">reference fit</span>

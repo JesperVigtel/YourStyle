@@ -117,8 +117,10 @@ export default function ShopPage() {
         setNotice("No signal — scan saved. It'll be evaluated automatically when you're back online.");
         return;
       }
-      const { done } = await processQueue((s) => uploadQueuedScan(s));
-      if (done.includes(id)) {
+      await processQueue((s) => uploadQueuedScan(s));
+      // Uploaded (by this run or one already in progress) once it has left the queue.
+      const stillQueued = (await listQueued()).some((q) => q.id === id);
+      if (!stillQueued) {
         try {
           writeStored(`scan-latency:${id}`, String(Math.round(performance.now() - started)), "session");
         } catch {}
@@ -247,7 +249,11 @@ export default function ShopPage() {
                 Done
               </Button>
             </div>
-            <button type="button" className="mt-3 flex h-11 w-full items-center justify-center text-sm text-muted underline" onClick={reset}>
+            <button
+              type="button"
+              className="mt-3 flex h-11 w-full items-center justify-center text-sm text-muted underline"
+              onClick={reset}
+            >
               Cancel scan
             </button>
           </div>

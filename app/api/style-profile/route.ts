@@ -21,7 +21,8 @@ export const PUT = route(async ({ repo }, req) => {
   const summaryChanged = (current?.summary ?? "").trim() !== b.summary.trim();
   const profile = await repo.insert<StyleProfile & Row>("style_profile", {
     summary: b.summary.trim(),
-    summary_source: summaryChanged ? "user" : (current?.summary_source ?? "user"),
+    // An empty summary is never "mine": leave it to the AI to fill in.
+    summary_source: !b.summary.trim() ? "ai" : summaryChanged ? "user" : (current?.summary_source ?? "ai"),
     hard_rules: applyListEdit(current?.hard_rules ?? [], b.hard_rules),
     soft_preferences: applyListEdit(current?.soft_preferences ?? [], b.soft_preferences),
     diff: "Edited by me.",

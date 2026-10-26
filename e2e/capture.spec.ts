@@ -72,6 +72,9 @@ test("filters and search narrow the grid; archive moves an item out of 'owned'",
   await page.getByRole("searchbox", { name: "Search" }).fill("");
   await page.getByRole("group", { name: "Category" }).getByRole("button", { name: "all" }).click();
   await expect(page.getByTestId("item-tile")).toHaveCount(18);
-  await page.getByRole("group", { name: "Status" }).getByRole("button", { name: /^archived/ }).click();
+  await page
+    .getByRole("group", { name: "Status" })
+    .getByRole("button", { name: /^archived/ })
+    .click();
   await expect(page.getByTestId("item-tile")).toHaveCount(1);
 });

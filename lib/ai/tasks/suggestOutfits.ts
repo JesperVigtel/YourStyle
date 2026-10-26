@@ -8,7 +8,8 @@ import { hashString } from "./images";
 
 export type SuggestInput = {
   count: number;
-  /** Candidate items (owned, minus anything excluded for today). */
+  /** All owned items. Every one gets an alias (so wear history and feedback stay readable), but
+   *  only the non-excluded ones are offered in the wardrobe list. */
   items: Item[];
   /** Real ids that must not be used (recently worn etc.); also enforced after the response. */
   excluded: Set<string>;
@@ -33,12 +34,12 @@ function aliasesFor(input: SuggestInput) {
   return (input.aliases ??= new IdAliases(input.items.map((i) => i.id)));
 }
 
-function describeIds(ids: string[], aliases: IdAliases, byId: Map<string, Item>) {
+/** Items as aliases (or as a short description with `plain`, or when they no longer exist). */
+function describeIds(ids: string[], aliases: IdAliases, byId: Map<string, Item>, plain = false) {
   return ids
     .map((id) => {
       const it = byId.get(id);
-      const known = aliases.resolve(id) ? aliases.alias(id) : null;
-      if (known) return known;
+      if (!plain && aliases.resolve(id)) return aliases.alias(id);
       return it ? `${it.colors[0]?.name ?? ""} ${it.subcategory ?? it.category}`.trim() : "(removed item)";
     })
     .join(" + ");
@@ -76,7 +77,10 @@ export const suggestOutfits: TaskDef<SuggestInput, SuggestOutfitsOutput, Suggest
           .join(" + "),
       )
       .join("\n");
-    const avoided = [...input.excluded].filter((id) => aliases.resolve(id)).map((id) => aliases.alias(id));
+    const avoided = input.items
+      .filter((i) => input.excluded.has(i.id))
+      .map((i) => `${aliases.alias(i.id)} (${describeIds([i.id], aliases, byId, true)})`);
+    const offered = input.items.filter((i) => !input.excluded.has(i.id));
     return {
       system: prompt.system,
       content: [
@@ -87,7 +91,7 @@ export const suggestOutfits: TaskDef<SuggestInput, SuggestOutfitsOutput, Suggest
             mood: input.mood,
             occasion: input.occasion,
             weather: input.weather,
-            wardrobe: summarizeWardrobe(input.items, aliases, input.stats),
+            wardrobe: summarizeWardrobe(offered, aliases, input.stats),
             profile: input.profile,
             body: input.body,
             recentWear,

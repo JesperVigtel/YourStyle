@@ -69,13 +69,20 @@ let running: Promise<{ done: string[] }> | null = null;
 
 /**
  * Uploads queued scans one by one, oldest first. Stops at the first transient failure
- * (most likely we're offline again). Concurrent calls share one run.
+ * (most likely we're offline again). Runs never overlap: a call made during a run waits for it
+ * and then runs again, so it sees scans added meanwhile and its own options apply.
  */
 export function processQueue(
   upload: (scan: QueuedScan) => Promise<UploadOutcome>,
   opts: { includeFailed?: boolean } = {},
 ): Promise<{ done: string[] }> {
-  if (running) return running;
+  if (running) {
+    const prev = running;
+    return prev.then(
+      (r) => processQueue(upload, opts).then((n) => ({ done: [...r.done, ...n.done] })),
+      () => processQueue(upload, opts),
+    );
+  }
   running = (async () => {
     const done: string[] = [];
     try {

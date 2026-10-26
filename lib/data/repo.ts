@@ -110,6 +110,7 @@ export const DEFAULTS: Record<TableName, Record<string, unknown>> = {
     saved_as: null,
     item_id: null,
     latency_ms: null,
+    eval_started_at: null,
   },
   ai_calls: {
     input_tokens: 0,
@@ -146,6 +147,14 @@ export function applyQuery<T extends Record<string, unknown>>(rows: T[], q: Quer
   }
   if (q.limit !== undefined) out = out.slice(0, q.limit);
   return out;
+}
+
+/** Insert with an id that already exists (Postgres unique violation 23505). */
+export class ConflictError extends Error {
+  constructor(table: string, detail = "") {
+    super(`${table}: duplicate key ${detail}`.trim());
+    this.name = "ConflictError";
+  }
 }
 
 export class NotFoundError extends Error {

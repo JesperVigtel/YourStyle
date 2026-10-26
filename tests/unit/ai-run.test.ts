@@ -42,7 +42,14 @@ describe("runTask", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0].req.jsonSchema).toMatchObject({ type: "object", additionalProperties: false });
     expect(logs).toEqual([
-      expect.objectContaining({ task: "testTask", model: "claude-sonnet-5-5", input_tokens: 1000, output_tokens: 200, ok: true, est_cost_usd: estimateCostUsd("claude-sonnet-5-5", 1000, 200) }),
+      expect.objectContaining({
+        task: "testTask",
+        model: "claude-sonnet-5-5",
+        input_tokens: 1000,
+        output_tokens: 200,
+        ok: true,
+        est_cost_usd: estimateCostUsd("claude-sonnet-5-5", 1000, 200),
+      }),
     ]);
   });
 
@@ -76,6 +83,22 @@ describe("runTask", () => {
     const err = await runTask(d, task, { x: 1 }).catch((e) => e);
     expect(err).toBeInstanceOf(AiError);
     expect(logs).toEqual([expect.objectContaining({ ok: false })]);
+  });
+
+  it("logs billed tokens even when the provider fails after the model ran (refusal, max_tokens)", async () => {
+    const usage = { model: "claude-opus-5-5", inputTokens: 5000, outputTokens: 6000 };
+    const { provider } = scripted([new AiError("The AI response was cut off.", "max_tokens", usage)]);
+    const { logs, deps: d } = deps(provider);
+    await runTask(d, task, { x: 1 }).catch(() => undefined);
+    expect(logs).toEqual([
+      expect.objectContaining({
+        model: "claude-opus-5-5",
+        input_tokens: 5000,
+        output_tokens: 6000,
+        ok: false,
+        est_cost_usd: estimateCostUsd("claude-opus-5-5", 5000, 6000),
+      }),
+    ]);
   });
 
   it("passes AiErrors from the provider through unchanged", async () => {

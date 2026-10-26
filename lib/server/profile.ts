@@ -70,12 +70,31 @@ export async function regenerateProfile(ctx: Ctx): Promise<StyleProfile> {
   });
 }
 
+// One automatic regeneration at a time per user, and a pause after a failure so a broken AI
+// setup doesn't cost a call on every rating. In memory: per server instance, which is enough to
+// stop the burst of parallel runs that quick ratings in a row would otherwise start.
+const RETRY_AFTER_FAILURE_MS = 15 * 60 * 1000;
+const g = globalThis as unknown as { __profileRegen?: { running: Set<string>; failedAt: Map<string, number> } };
+const regenState = (g.__profileRegen ??= { running: new Set(), failedAt: new Map() });
+
 /** Regenerates when at least PROFILE_REGEN_EVERY feedback events arrived since the last generation. */
 export async function maybeRegenerateProfile(ctx: Ctx): Promise<boolean> {
-  const current = await latestProfile(ctx.repo);
-  const since = current?.generated_from_feedback_until;
-  const n = await ctx.repo.count("feedback", since ? { gt: { created_at: since } } : undefined);
-  if (n < PROFILE_REGEN_EVERY) return false;
-  await regenerateProfile(ctx);
-  return true;
+  const uid = ctx.user.id;
+  if (regenState.running.has(uid)) return false;
+  if (Date.now() - (regenState.failedAt.get(uid) ?? 0) < RETRY_AFTER_FAILURE_MS) return false;
+  regenState.running.add(uid);
+  try {
+    const current = await latestProfile(ctx.repo);
+    const since = current?.generated_from_feedback_until;
+    const n = await ctx.repo.count("feedback", since ? { gt: { created_at: since } } : undefined);
+    if (n < PROFILE_REGEN_EVERY) return false;
+    await regenerateProfile(ctx);
+    regenState.failedAt.delete(uid);
+    return true;
+  } catch (e) {
+    regenState.failedAt.set(uid, Date.now());
+    throw e;
+  } finally {
+    regenState.running.delete(uid);
+  }
 }

@@ -31,6 +31,7 @@ export default function AddItemPage() {
     seconds?: number;
   }>({ state: "running", url: null });
   const cutoutPromise = useRef<Promise<string | null> | null>(null);
+  const photoGen = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
 
@@ -51,8 +52,13 @@ export default function AddItemPage() {
       // Background removal starts right away and runs in parallel with tagging.
       setCutout({ state: "running", url: null });
       const cutStart = now();
+      // A late result for an earlier photo ("Save & add another" while it ran) is ignored.
+      const gen = ++photoGen.current;
       cutoutPromise.current = makeCutout(blob);
-      cutoutPromise.current.then((url) => setCutout({ state: url ? "done" : "failed", url, seconds: secondsSince(cutStart) }));
+      cutoutPromise.current.then((url) => {
+        if (gen === photoGen.current)
+          setCutout({ state: url ? "done" : "failed", url, seconds: secondsSince(cutStart) });
+      });
     } catch (e) {
       setError(`Couldn't read that photo: ${errorMessage(e)}`);
     }

@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { NotFoundError, type Query, type Repo, type Row, type TableName } from "./repo";
+import { ConflictError, NotFoundError, type Query, type Repo, type Row, type TableName } from "./repo";
 
 /**
  * Postgres repository. Every query runs with the user's session, so RLS
@@ -40,6 +40,7 @@ export class SupabaseRepo implements Repo {
       .insert(row as Record<string, unknown>)
       .select("*")
       .single();
+    if (error?.code === "23505") throw new ConflictError(table, error.details ?? "");
     if (error) throw new Error(`${table}.insert: ${error.message}`);
     return data as T;
   }

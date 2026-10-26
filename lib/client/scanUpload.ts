@@ -1,7 +1,10 @@
 import type { QueuedScan, UploadOutcome } from "./offlineQueue";
 
-/** Sends one queued scan to /api/scans (create + evaluate in one request). */
-export async function uploadQueuedScan(scan: QueuedScan, timeoutMs = 45_000): Promise<UploadOutcome> {
+/**
+ * Sends one queued scan to /api/scans (create + evaluate in one request). The timeout is longer
+ * than the server's 60 s limit, so a slow evaluation isn't abandoned and re-sent.
+ */
+export async function uploadQueuedScan(scan: QueuedScan, timeoutMs = 75_000): Promise<UploadOutcome> {
   if (typeof navigator !== "undefined" && navigator.onLine === false) return { result: "retry", error: "offline" };
   const form = new FormData();
   form.set("id", scan.id);

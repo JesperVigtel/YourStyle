@@ -57,25 +57,26 @@ export class AnthropicProvider implements AiProvider {
       throw e;
     }
 
+    const u = res.usage;
+    const usage = {
+      model: res.model,
+      inputTokens: u.input_tokens + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0),
+      outputTokens: u.output_tokens,
+    };
     if (res.stop_reason === "refusal") {
       throw new AiError(
         "The AI declined this request. Try a different photo.",
         res.stop_details?.category ?? undefined,
+        usage,
       );
     }
     if (res.stop_reason === "max_tokens") {
-      throw new AiError("The AI response was cut off.", "max_tokens");
+      throw new AiError("The AI response was cut off.", "max_tokens", usage);
     }
     const text = res.content
       .filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === "text")
       .map((b) => b.text)
       .join("");
-    const u = res.usage;
-    return {
-      text,
-      model: res.model,
-      inputTokens: u.input_tokens + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0),
-      outputTokens: u.output_tokens,
-    };
+    return { text, ...usage };
   }
 }

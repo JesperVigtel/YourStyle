@@ -28,7 +28,10 @@ describe("filterOutfits — hallucination filter", () => {
 
 describe("filterOutfits — business rules", () => {
   it("drops outfits that use excluded (recently worn) items", () => {
-    const { outfits, report } = filterOutfits([o(["i1", "i3"]), o(["i2", "i4"])], { ...base, excluded: new Set(["t1"]) });
+    const { outfits, report } = filterOutfits([o(["i1", "i3"]), o(["i2", "i4"])], {
+      ...base,
+      excluded: new Set(["t1"]),
+    });
     expect(outfits.map((x) => x.item_ids)).toEqual([["t2", "b2"]]);
     expect(report.droppedExcluded).toBe(1);
   });
@@ -41,7 +44,10 @@ describe("filterOutfits — business rules", () => {
   });
 
   it("removes duplicate outfits and respects max", () => {
-    const { outfits, report } = filterOutfits([o(["i1", "i3"]), o(["i3", "i1"]), o(["i2", "i3"]), o(["i2", "i4"])], { ...base, max: 2 });
+    const { outfits, report } = filterOutfits([o(["i1", "i3"]), o(["i3", "i1"]), o(["i2", "i3"]), o(["i2", "i4"])], {
+      ...base,
+      max: 2,
+    });
     expect(outfits).toHaveLength(2);
     expect(report.duplicates).toBe(1);
   });
@@ -49,7 +55,10 @@ describe("filterOutfits — business rules", () => {
 
 describe("filterOutfits — swap suggestion", () => {
   it("keeps a valid swap with real ids", () => {
-    const { outfits } = filterOutfits([o(["i1", "i3"], { replace_item_id: "i1", with_item_id: "i2", note: "n" })], base);
+    const { outfits } = filterOutfits(
+      [o(["i1", "i3"], { replace_item_id: "i1", with_item_id: "i2", note: "n" })],
+      base,
+    );
     expect(outfits[0].swap).toEqual({ replace_item_id: "t1", with_item_id: "t2", note: "n" });
   });
   it.each([
@@ -62,7 +71,10 @@ describe("filterOutfits — swap suggestion", () => {
   });
   it("nulls a swap that would produce a disliked combination", () => {
     const disliked = new Set([itemSetKey(["t2", "b1"])]);
-    const { outfits } = filterOutfits([o(["i1", "i3"], { replace_item_id: "i1", with_item_id: "i2", note: "" })], { ...base, disliked });
+    const { outfits } = filterOutfits([o(["i1", "i3"], { replace_item_id: "i1", with_item_id: "i2", note: "" })], {
+      ...base,
+      disliked,
+    });
     expect(outfits[0].swap).toBeNull();
   });
 });

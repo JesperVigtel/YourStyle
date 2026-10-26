@@ -154,6 +154,7 @@ create table public.scans (
   saved_as text check (saved_as in ('considered', 'wishlist')),
   item_id uuid references public.items (id) on delete set null,
   latency_ms integer,
+  eval_started_at timestamptz, -- set when evaluation starts; lets a retried upload detect an in-flight one
   created_at timestamptz not null default now()
 );
 create index scans_user_created_idx on public.scans (user_id, created_at desc);

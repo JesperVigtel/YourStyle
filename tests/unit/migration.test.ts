@@ -77,7 +77,9 @@ describe("migration", () => {
   });
 
   it("rejects writing rows for another user", async () => {
-    await expect(as(A, `insert into feedback (user_id, rating) values ('${B}', 1)`)).rejects.toThrow(/row-level security/);
+    await expect(as(A, `insert into feedback (user_id, rating) values ('${B}', 1)`)).rejects.toThrow(
+      /row-level security/,
+    );
   });
 
   it("enforces value checks", async () => {
@@ -87,9 +89,9 @@ describe("migration", () => {
 
   it("restricts storage objects to the user's own folder", async () => {
     await as(A, `insert into storage.objects (bucket_id, name) values ('wardrobe', '${A}/uploads/x.jpg')`);
-    await expect(as(A, `insert into storage.objects (bucket_id, name) values ('wardrobe', '${B}/uploads/x.jpg')`)).rejects.toThrow(
-      /row-level security/,
-    );
+    await expect(
+      as(A, `insert into storage.objects (bucket_id, name) values ('wardrobe', '${B}/uploads/x.jpg')`),
+    ).rejects.toThrow(/row-level security/);
     expect(await as(B, `select name from storage.objects`)).toEqual([]);
   });
 });

@@ -11,7 +11,9 @@ describe("background removal falls back to the original photo", () => {
 
   it("returns null (keep the photo) when removal throws", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await expect(removeBackgroundSafe(photo, { remove: async () => Promise.reject(new Error("wasm failed")) })).resolves.toBeNull();
+    await expect(
+      removeBackgroundSafe(photo, { remove: async () => Promise.reject(new Error("wasm failed")) }),
+    ).resolves.toBeNull();
     warn.mockRestore();
   });
 

@@ -6,13 +6,13 @@ import { swapItem } from "@/lib/ai/tasks/swapItem";
 import { BadRequestError } from "@/lib/api";
 import { NotFoundError, type Row } from "@/lib/data/repo";
 import {
+  allWear,
   bodyForPrompt,
   getBody,
   latestProfile,
   listItems,
   listMoods,
   recentFeedback,
-  wearSince,
 } from "@/lib/data/services";
 import { dislikedSets } from "@/lib/domain/outfits";
 import { profileForPrompt } from "@/lib/domain/profile";
@@ -48,14 +48,15 @@ export type SuggestResponse =
 
 async function loadContext(ctx: Ctx, today: string, includeRecent: boolean) {
   const { repo } = ctx;
-  const [owned, wear14, feedback, disliked, profile, body] = await Promise.all([
+  const [owned, wear, feedback, disliked, profile, body] = await Promise.all([
     listItems(repo, "owned"),
-    wearSince(repo, addDays(today, -14)),
+    allWear(repo),
     recentFeedback(repo, 30),
     repo.list<Feedback & Row>("feedback", { eq: { rating: -1 } }),
     latestProfile(repo),
     getBody(repo),
   ]);
+  const wear14 = wear.filter((w) => w.date >= addDays(today, -14));
   const recent = recentlyWornIds(wear14, today, RECENT_WEAR_DAYS);
   const excluded = includeRecent ? new Set<string>() : recent;
   return {
@@ -65,7 +66,8 @@ async function loadContext(ctx: Ctx, today: string, includeRecent: boolean) {
     disliked: dislikedSets(disliked),
     recent,
     excluded,
-    stats: wearStats(wear14),
+    // Full history: "worn 20x, last in March" matters for preferring neglected items.
+    stats: wearStats(wear),
     profile: profileForPrompt(profile),
     body: bodyForPrompt(body),
   };
@@ -86,9 +88,9 @@ export async function suggest(ctx: Ctx, req: SuggestRequest): Promise<SuggestRes
     name: req.mood,
     description: "",
   };
-  const items = c.owned.filter((i) => !c.excluded.has(i.id));
+  // Every owned item goes in; the task offers only the non-excluded ones (see SuggestInput.items).
   const base = {
-    items,
+    items: c.owned,
     excluded: c.excluded,
     stats: c.stats,
     mood: { name: mood.name, description: mood.description },

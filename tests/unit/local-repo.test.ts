@@ -3,7 +3,7 @@ import { tmpdir } from "os";
 import path from "path";
 import { afterAll, describe, expect, it } from "vitest";
 import { LocalRepo } from "@/lib/data/local";
-import { applyQuery, NotFoundError, type Row } from "@/lib/data/repo";
+import { applyQuery, ConflictError, NotFoundError, type Row } from "@/lib/data/repo";
 import type { Item } from "@/lib/types";
 
 const dir = mkdtempSync(path.join(tmpdir(), "wardrobe-repo-"));
@@ -25,7 +25,11 @@ describe("LocalRepo", () => {
 
   it("updates without touching id/created_at, and throws NotFound", async () => {
     const it = await repo.insert<ItemRow>("items", { category: "top" });
-    const up = await repo.update<ItemRow>("items", it.id, { brand: "COS", id: "hacked", created_at: "x" } as Partial<ItemRow>);
+    const up = await repo.update<ItemRow>("items", it.id, {
+      brand: "COS",
+      id: "hacked",
+      created_at: "x",
+    } as Partial<ItemRow>);
     expect(up).toMatchObject({ id: it.id, created_at: it.created_at, brand: "COS" });
     await expect(repo.update("items", "missing", {})).rejects.toBeInstanceOf(NotFoundError);
   });
@@ -35,11 +39,19 @@ describe("LocalRepo", () => {
     await r.insert("wear_log", { date: "2026-10-01", item_ids: ["a"] });
     await r.insert("wear_log", { date: "2026-10-05", item_ids: ["b"] });
     const w = await r.insert("wear_log", { date: "2026-10-03", item_ids: ["c"] });
-    const list = await r.list<Row & { date: string }>("wear_log", { gte: { date: "2026-10-02" }, order: { column: "date", ascending: false } });
+    const list = await r.list<Row & { date: string }>("wear_log", {
+      gte: { date: "2026-10-02" },
+      order: { column: "date", ascending: false },
+    });
     expect(list.map((x) => x.date)).toEqual(["2026-10-05", "2026-10-03"]);
     expect(await r.count("wear_log", { gt: { date: "2026-10-01" } })).toBe(2);
     await r.remove("wear_log", w.id);
     expect(await r.count("wear_log")).toBe(2);
+  });
+
+  it("rejects a duplicate id like the Postgres primary key", async () => {
+    const it = await repo.insert<ItemRow>("items", { category: "top" });
+    await expect(repo.insert<ItemRow>("items", { id: it.id, category: "bag" })).rejects.toBeInstanceOf(ConflictError);
   });
 
   it("does not lose writes under concurrency", async () => {

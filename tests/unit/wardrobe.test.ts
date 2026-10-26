@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addDays, clamp, IdAliases, itemSetKey, recentlyWornIds, summarizeItem, wearStats } from "@/lib/domain/wardrobe";
+import {
+  addDays,
+  clamp,
+  IdAliases,
+  itemSetKey,
+  recentlyWornIds,
+  summarizeItem,
+  wearStats,
+} from "@/lib/domain/wardrobe";
 import { makeItem } from "./fixtures";
 
 describe("wearStats (derived from wear_log)", () => {
@@ -56,7 +64,10 @@ describe("IdAliases", () => {
 
 describe("summarizeItem", () => {
   it("is a compact single line with wear info", () => {
-    const line = summarizeItem(makeItem({ brand: "COS", is_reference: true, size_label: "M" }), "i4", { count: 2, lastWorn: "2026-10-20" });
+    const line = summarizeItem(makeItem({ brand: "COS", is_reference: true, size_label: "M" }), "i4", {
+      count: 2,
+      lastWorn: "2026-10-20",
+    });
     expect(line).toContain("i4 | top/t-shirt | white");
     expect(line).toContain("COS");
     expect(line).toContain("REFERENCE FIT");

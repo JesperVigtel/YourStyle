@@ -187,6 +187,7 @@ export type Scan = {
   saved_as: "considered" | "wishlist" | null;
   item_id: string | null;
   latency_ms: number | null;
+  eval_started_at: string | null;
   created_at: string;
 };
 

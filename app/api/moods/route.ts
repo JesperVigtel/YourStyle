@@ -11,7 +11,10 @@ const body = z.object({
     .array(z.object({ id: z.string().optional(), name: z.string().min(1).max(40), description: z.string().max(300) }))
     .min(1)
     .max(20)
-    .refine((ms) => new Set(ms.map((m) => m.name.trim().toLowerCase())).size === ms.length, "Mood names must be unique"),
+    .refine(
+      (ms) => new Set(ms.map((m) => m.name.trim().toLowerCase())).size === ms.length,
+      "Mood names must be unique",
+    ),
 });
 
 /** Replaces the mood list (order = sort). */
@@ -20,6 +23,10 @@ export const PUT = route(async ({ repo }, req) => {
   const existing = await listMoods(repo);
   const keep = new Set(b.moods.map((m) => m.id).filter(Boolean));
   for (const m of existing) if (!keep.has(m.id)) await repo.remove("moods", m.id);
+  // Two passes so renames that swap names don't collide on the unique (user_id, name) index:
+  // first move every kept mood to a temporary unique name, then write the final names.
+  const kept = existing.filter((m) => keep.has(m.id));
+  for (const m of kept) await repo.update<Mood & Row>("moods", m.id, { name: `~${m.id}` });
   for (const [sort, m] of b.moods.entries()) {
     if (m.id && existing.some((e) => e.id === m.id)) {
       await repo.update<Mood & Row>("moods", m.id, { name: m.name, description: m.description, sort });
