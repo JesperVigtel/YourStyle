@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* Neutral canvas so the clothes stand out; one accent colour (rust). */
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #efede8;
+  --ink: #1c1b19;
+  --muted: #6d6a64;
+  --line: #e2dfd8;
+  --accent: #b4532a;
+  --accent-ink: #ffffff;
+  --accent-soft: #f6e6dd;
+  --canvas: #ebe8e2;
+  --warn: #9a6700;
+  --warn-soft: #fff4d6;
+  --good: #2f6b3a;
+  --good-soft: #e3f1e5;
+  --bad: #a1302a;
+  --bad-soft: #f8e1df;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121211;
+    --surface: #1c1c1a;
+    --surface-2: #262523;
+    --ink: #f1efe9;
+    --muted: #a19d95;
+    --line: #34322e;
+    --accent: #e07a52;
+    --accent-ink: #1a0f0a;
+    --accent-soft: #3a2419;
+    --canvas: #2a2926;
+    --warn: #f0c35a;
+    --warn-soft: #3a2f12;
+    --good: #7fc28a;
+    --good-soft: #1d3221;
+    --bad: #f08a80;
+    --bad-soft: #3b1d1a;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-canvas: var(--canvas);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  overscroll-behavior-y: none;
+}
+
+/* iOS: inputs below 16px trigger zoom on focus. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.px-safe {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+/* Space for the fixed tab bar (64px) + home indicator. */
+.pb-tabbar {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+.bottom-tabbar {
+  bottom: calc(4.5rem + env(safe-area-inset-bottom));
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%);
+  background-size: 200px 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
