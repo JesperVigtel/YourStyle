@@ -16,7 +16,7 @@ export default function MoodsPage() {
       <PageHeader title="Moods" back="/profile" />
       <Page>
         <p className="text-sm text-muted">The description tells the AI what each mood means to you.</p>
-        {moods && <MoodsEditor key={moods.map((m) => m.id).join()} moods={moods} />}
+        {moods && <MoodsEditor moods={moods} />}
       </Page>
     </>
   );
@@ -45,12 +45,14 @@ function MoodsEditor({ moods }: { moods: Mood[] }) {
     setBusy(true);
     setError(null);
     try {
-      await api("/api/moods", {
+      const res = await api<{ moods: Mood[] }>("/api/moods", {
         method: "PUT",
         json: { moods: list.filter((m) => m.name.trim()) },
       });
+      // Keep editing the saved list (new moods now have ids) and refresh the shared cache.
+      setList(res.moods.map(({ id, name, description }) => ({ id, name, description })));
       setSaved(true);
-      await mutate("/api/moods");
+      await mutate("/api/moods", res, { revalidate: false });
     } catch (e) {
       setError(errorMessage(e));
     } finally {

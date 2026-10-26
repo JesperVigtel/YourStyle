@@ -106,7 +106,7 @@ export default function ItemView() {
               <>
                 <div className="mt-4 flex flex-wrap gap-2 text-sm">
                   {item.status !== "owned" && (
-                    <span className="rounded-full bg-warn-soft px-3 py-1 text-warn">{item.status}</span>
+                    <span data-testid="status-badge" className="rounded-full bg-warn-soft px-3 py-1 text-warn">{item.status}</span>
                   )}
                   {item.is_reference && (
                     <span className="rounded-full bg-good-soft px-3 py-1 text-good">reference fit</span>

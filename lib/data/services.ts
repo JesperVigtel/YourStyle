@@ -28,7 +28,9 @@ export async function getBody(repo: Repo): Promise<(BodyProfile & Row) | null> {
 export async function listMoods(repo: Repo): Promise<Mood[]> {
   let moods = await repo.list<R<Mood>>("moods", { order: { column: "sort" } });
   if (!moods.length) {
-    for (const [i, m] of DEFAULT_MOODS.entries()) await repo.insert("moods", { ...m, sort: i });
+    // First use: seed the defaults. Two requests can race here; the unique (user_id, name) index
+    // rejects the duplicates, which is fine.
+    await Promise.allSettled(DEFAULT_MOODS.map((m, i) => repo.insert("moods", { ...m, sort: i })));
     moods = await repo.list<R<Mood>>("moods", { order: { column: "sort" } });
   }
   return moods;

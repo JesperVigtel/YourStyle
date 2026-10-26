@@ -247,7 +247,7 @@ export default function ShopPage() {
                 Done
               </Button>
             </div>
-            <button type="button" className="mt-3 w-full text-center text-sm text-muted underline" onClick={reset}>
+            <button type="button" className="mt-3 flex h-11 w-full items-center justify-center text-sm text-muted underline" onClick={reset}>
               Cancel scan
             </button>
           </div>

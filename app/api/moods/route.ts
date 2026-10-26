@@ -10,7 +10,8 @@ const body = z.object({
   moods: z
     .array(z.object({ id: z.string().optional(), name: z.string().min(1).max(40), description: z.string().max(300) }))
     .min(1)
-    .max(20),
+    .max(20)
+    .refine((ms) => new Set(ms.map((m) => m.name.trim().toLowerCase())).size === ms.length, "Mood names must be unique"),
 });
 
 /** Replaces the mood list (order = sort). */

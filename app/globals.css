@@ -31,7 +31,7 @@
     --accent: #e07a52;
     --accent-ink: #1a0f0a;
     --accent-soft: #3a2419;
-    --canvas: #2a2926;
+    --canvas: #46443f; /* mid-grey so both black and white garments stay visible */
     --warn: #f0c35a;
     --warn-soft: #3a2f12;
     --good: #7fc28a;
@@ -93,8 +93,13 @@ textarea {
 .pb-tabbar {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
+/* Sticky action bars sit directly on top of the tab bar. */
 .bottom-tabbar {
-  bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+/* Floating action button, just above the tab bar. */
+.bottom-fab {
+  bottom: calc(5rem + env(safe-area-inset-bottom));
 }
 
 @keyframes shimmer {

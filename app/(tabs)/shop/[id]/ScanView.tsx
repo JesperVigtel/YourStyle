@@ -242,7 +242,7 @@ export default function ScanView() {
                 <p className="text-sm">
                   Bought ✓ — it&apos;s in your wardrobe.{" "}
                   {scan.item_id && (
-                    <Link className="text-accent underline" href={`/wardrobe/${scan.item_id}`}>
+                    <Link className="inline-flex h-11 items-center text-accent underline" href={`/wardrobe/${scan.item_id}`}>
                       Open item
                     </Link>
                   )}

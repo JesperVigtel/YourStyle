@@ -169,7 +169,7 @@ export default function AddItemPage() {
                 onChange={(e) => onPhoto(e.target.files?.[0])}
               />
             </label>
-            <Link href="/wardrobe/batch" className="block text-center text-sm text-muted underline">
+            <Link href="/wardrobe/batch" className="flex h-11 items-center justify-center text-sm text-muted underline">
               Adding many? Use batch mode
             </Link>
           </div>

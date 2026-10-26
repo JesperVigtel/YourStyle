@@ -9,7 +9,9 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test --project=iphone-15",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "seed": "curl -s -X POST 'http://localhost:3000/api/dev/seed?reset=1&wear=1'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

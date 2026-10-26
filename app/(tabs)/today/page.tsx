@@ -161,7 +161,7 @@ export default function TodayPage() {
       <PageHeader
         title="Today"
         action={
-          <Link href="/today/build" className="text-sm font-medium text-accent">
+          <Link href="/today/build" className="flex h-11 items-center text-sm font-medium text-accent">
             Build my own
           </Link>
         }

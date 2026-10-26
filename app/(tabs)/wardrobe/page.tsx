@@ -55,7 +55,7 @@ export default function WardrobePage() {
       <PageHeader
         title="Wardrobe"
         action={
-          <Link href="/wardrobe/batch" className="text-sm font-medium text-accent">
+          <Link href="/wardrobe/batch" className="flex h-11 items-center text-sm font-medium text-accent">
             Batch add
           </Link>
         }
@@ -81,19 +81,17 @@ export default function WardrobePage() {
             ))}
           </ChipRow>
         </div>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          <select
-            aria-label="Status"
-            className={inputClass}
-            value={status}
-            onChange={(e) => setStatus(e.target.value as ItemStatus)}
-          >
+        <div className="mt-2">
+          <ChipRow label="Status">
             {ITEM_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s} {counts[s] ? `(${counts[s]})` : ""}
-              </option>
+              <Chip key={s} selected={status === s} onClick={() => setStatus(s)}>
+                {s}
+                {counts[s] ? ` · ${counts[s]}` : ""}
+              </Chip>
             ))}
-          </select>
+          </ChipRow>
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
           <select
             aria-label="Season"
             className={inputClass}
@@ -144,7 +142,7 @@ export default function WardrobePage() {
       <Link
         href="/wardrobe/add"
         aria-label="Add item"
-        className="bottom-tabbar fixed right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-3xl text-accent-ink shadow-lg"
+        className="bottom-fab fixed right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-3xl text-accent-ink shadow-lg"
       >
         +
       </Link>

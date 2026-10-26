@@ -10,6 +10,11 @@ export function VerdictBadge({ verdict }: { verdict?: string | null }) {
     error: "bg-bad-soft text-bad",
   };
   return (
-    <span className={clsx("rounded-full px-3 py-1 text-xs font-semibold uppercase", styles[verdict])}>{verdict}</span>
+    <span
+      data-testid="verdict-badge"
+      className={clsx("rounded-full px-3 py-1 text-xs font-semibold uppercase", styles[verdict])}
+    >
+      {verdict}
+    </span>
   );
 }

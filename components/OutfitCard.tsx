@@ -72,7 +72,7 @@ export function OutfitCard({
         <button
           type="button"
           onClick={swapHint.onApply}
-          className="mt-2 px-1 text-left text-sm text-muted underline decoration-dotted"
+          className="mt-1 min-h-11 px-1 text-left text-sm text-muted underline decoration-dotted"
         >
           Alternative: {swapHint.label}
         </button>

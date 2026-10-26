@@ -33,12 +33,15 @@ export async function requireUser(): Promise<Ctx> {
     };
   }
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) throw new UnauthorizedError();
-  if (!isAllowedEmail(data.user.email)) throw new UnauthorizedError("This account is not allowed");
+  // getClaims verifies the JWT (locally with asymmetric signing keys, else via the auth server).
+  const { data, error } = await supabase.auth.getClaims();
+  const id = data?.claims?.sub;
+  const email = data?.claims?.email as string | undefined;
+  if (error || !id) throw new UnauthorizedError();
+  if (!isAllowedEmail(email)) throw new UnauthorizedError("This account is not allowed");
   return {
-    user: { id: data.user.id, email: data.user.email! },
+    user: { id, email: email! },
     repo: new SupabaseRepo(supabase),
-    store: new SupabaseBlobStore(supabase, data.user.id),
+    store: new SupabaseBlobStore(supabase, id),
   };
 }

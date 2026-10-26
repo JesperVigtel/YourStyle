@@ -134,7 +134,7 @@ export function ItemForm({
           {value.colors.map((c, i) => (
             <span
               key={i}
-              className="flex h-9 items-center gap-2 rounded-full border border-line bg-surface pr-1 pl-1.5 text-sm"
+              className="flex h-11 items-center gap-2 rounded-full border border-line bg-surface pr-1 pl-2 text-sm"
             >
               <input
                 type="color"
@@ -146,7 +146,7 @@ export function ItemForm({
                     value.colors.map((x, j) => (j === i ? { ...x, hex: e.target.value } : x)),
                   )
                 }
-                className="h-6 w-6 cursor-pointer rounded-full border-0 bg-transparent p-0"
+                className="h-7 w-7 cursor-pointer rounded-full border-0 bg-transparent p-0"
               />
               <input
                 aria-label={`Colour ${i + 1} name`}
@@ -157,12 +157,12 @@ export function ItemForm({
                     value.colors.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)),
                   )
                 }
-                className="w-24 bg-transparent text-sm outline-none"
+                className="h-10 w-24 bg-transparent text-sm outline-none"
               />
               <button
                 type="button"
                 aria-label="Remove colour"
-                className="h-7 w-7 rounded-full text-muted"
+                className="h-10 w-10 rounded-full text-lg text-muted"
                 onClick={() =>
                   set(
                     "colors",
@@ -177,7 +177,7 @@ export function ItemForm({
           {value.colors.length < 3 && (
             <button
               type="button"
-              className="h-9 rounded-full border border-dashed border-line px-3 text-sm text-muted"
+              className="h-11 rounded-full border border-dashed border-line px-3 text-sm text-muted"
               onClick={() =>
                 set("colors", [
                   ...value.colors,

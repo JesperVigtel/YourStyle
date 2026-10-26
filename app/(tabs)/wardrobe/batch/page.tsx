@@ -215,7 +215,7 @@ export default function BatchPage() {
             </div>
             <button
               type="button"
-              className="mt-2 w-full text-center text-sm text-muted underline"
+              className="mt-2 flex h-11 w-full items-center justify-center text-sm text-muted underline"
               onClick={() => setReviewKey(null)}
             >
               Back to all photos

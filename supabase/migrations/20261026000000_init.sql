@@ -133,6 +133,7 @@ create table public.moods (
   sort integer not null default 0,
   created_at timestamptz not null default now()
 );
+create unique index moods_user_name_idx on public.moods (user_id, lower(name));
 
 -- ───────────────────────── scans (shop mode)
 create table public.scans (
