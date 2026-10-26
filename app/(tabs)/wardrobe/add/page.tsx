@@ -28,6 +28,7 @@ export default function AddItemPage() {
   const [cutout, setCutout] = useState<{
     state: "running" | "done" | "failed";
     url: string | null;
+    seconds?: number;
   }>({ state: "running", url: null });
   const cutoutPromise = useRef<Promise<string | null> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +50,9 @@ export default function AddItemPage() {
       setStage("labels");
       // Background removal starts right away and runs in parallel with tagging.
       setCutout({ state: "running", url: null });
+      const cutStart = now();
       cutoutPromise.current = makeCutout(blob);
-      cutoutPromise.current.then((url) => setCutout({ state: url ? "done" : "failed", url }));
+      cutoutPromise.current.then((url) => setCutout({ state: url ? "done" : "failed", url, seconds: secondsSince(cutStart) }));
     } catch (e) {
       setError(`Couldn't read that photo: ${errorMessage(e)}`);
     }
@@ -190,7 +192,7 @@ export default function AddItemPage() {
               {cutout.state === "running"
                 ? "Removing background…"
                 : cutout.state === "done"
-                  ? "Cutout ready"
+                  ? `Cutout ready (${cutout.seconds} s)`
                   : "Using original photo"}
             </span>
           </div>

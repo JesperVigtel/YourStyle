@@ -1,6 +1,6 @@
 # PLAN — Wardrobe (Run 1: Phases 0–4)
 
-Living checklist. Updated as work progresses. See `DECISIONS.md` for the reasoning behind non-obvious choices.
+Living checklist. **Status: Run 1 complete (Phases 0–4 and all P1 items).** See `DECISIONS.md` for the reasoning behind non-obvious choices.
 
 ## Architecture
 
@@ -58,52 +58,80 @@ e2e/                 Playwright (iPhone 15 viewport) + fixture images + screensh
 
 ### Phase 0 — Scaffold & deploy
 - [x] Next.js + TS + Tailwind scaffold, deps installed
-- [ ] env parsing, Repo + Storage abstractions (local + supabase)
-- [ ] SQL migration: all tables (incl. Phase 5/6 columns), RLS, storage bucket + policies
-- [ ] Auth: magic link + 6-digit code (iOS PWA), allowlist, dev bypass (refuses to run on Vercel)
-- [ ] PWA: manifest, icons, iOS meta, safe areas, theme colour, service worker
-- [ ] Tab bar: Today · Wardrobe · Shop · Profile
-- [ ] README, .env.example, SETUP_FOR_ME.md
+- [x] env parsing, Repo + Storage abstractions (local + supabase)
+- [x] SQL migration: all tables (incl. Phase 5/6 columns), RLS, storage bucket + policies
+- [x] Auth: magic link + 6-digit code (iOS PWA), allowlist, dev bypass (refuses to run on Vercel)
+- [x] PWA: manifest, icons, iOS meta, safe areas, theme colour, service worker
+- [x] Tab bar: Today · Wardrobe · Shop · Profile
+- [x] README, .env.example, SETUP_FOR_ME.md
 - **Verify:** `npm run typecheck && npm run lint && npm run build` pass; manifest checked by a unit test
   (required fields, icons exist) and by Playwright fetching `/manifest.webmanifest`; migration SQL is
   executed against PGlite in a unit test.
 
 ### Phase 1 — Capture & wardrobe
-- [ ] Client image pipeline: HEIC fallback, compress (1600px, q0.8), cutout input (1024px)
-- [ ] `tagItem` (AI) + mock; confidence per field → highlighted fields
-- [ ] "+" flow: photo → optional labels → parallel bg-removal + tagging (skeleton) → form → save
-- [ ] Batch mode: pick many → queue tagging → review one by one
-- [ ] Wardrobe grid + filters (category, colour, season, status) + search
-- [ ] Item detail: edit, archive, wear history (derived from wear_log)
+- [x] Client image pipeline: HEIC fallback, compress (1600px, q0.8), cutout input (1024px)
+- [x] `tagItem` (AI) + mock; confidence per field → highlighted fields
+- [x] "+" flow: photo → optional labels → parallel bg-removal + tagging (skeleton) → form → save
+- [x] Batch mode: pick many → queue tagging → review one by one
+- [x] Wardrobe grid + filters (category, colour, season, status) + search
+- [x] Item detail: edit, archive, wear history (derived from wear_log)
 - **Verify:** unit tests for schemas/filters; e2e "add item" (photo → form prefilled, low-confidence
   highlighted → saved → visible in grid); screenshots light/dark.
 
 ### Phase 2 — Today
-- [ ] Context bar: mood chips (configurable), occasion chips + free text, weather (geolocation + Open-Meteo, override)
-- [ ] `suggestOutfits`: wardrobe summary, recent wear, feedback, profile → 3 outfits; filters for
+- [x] Context bar: mood chips (configurable), occasion chips + free text, weather (geolocation + Open-Meteo, override)
+- [x] `suggestOutfits`: wardrobe summary, recent wear, feedback, profile → 3 outfits; filters for
       hallucinated ids, recently worn (3 days), disliked combos, duplicates
-- [ ] Collage rendering; Wear this (1 tap); 👍/👎 with reason chips + comment; swap one item
-- [ ] < 15 items → explain instead of suggesting
-- [ ] Manual outfit builder
+- [x] Collage rendering; Wear this (1 tap); 👍/👎 with reason chips + comment; swap one item
+- [x] < 15 items → explain instead of suggesting
+- [x] Manual outfit builder
 - **Verify:** unit tests for filters; e2e suggest → wear → feedback → swap; e2e small-wardrobe message.
 
 ### Phase 3 — Memory & style profile
-- [ ] `updateStyleProfile` auto after every 10 feedback events (`after()`), and on demand
-- [ ] Profile tab: summary, hard rules, soft preferences — editable; user entries survive regeneration
-- [ ] History of liked / disliked outfits
-- [ ] Body profile + moods editor + AI cost (monthly) on settings
+- [x] `updateStyleProfile` auto after every 10 feedback events (`after()`), and on demand
+- [x] Profile tab: summary, hard rules, soft preferences — editable; user entries survive regeneration
+- [x] History of liked / disliked outfits
+- [x] Body profile + moods editor + AI cost (monthly) on settings
 - **Verify:** unit tests for merge (user edits preserved) and for disliked-combo exclusion; e2e edit profile.
 
 ### Phase 4 — Shop mode
-- [ ] Scan button → camera; guided 4 steps, each skippable, Done always visible; screenshot upload
-- [ ] `evaluatePurchase` → extracted, fit prediction, outfit gain + collages, overlap, material note,
+- [x] Scan button → camera; guided 4 steps, each skippable, Done always visible; screenshot upload
+- [x] `evaluatePurchase` → extracted, fit prediction, outfit gain + collages, overlap, material note,
       vintage price sanity, Buy/Maybe/Skip
-- [ ] Save as considered / wishlist; "I bought it" → owned item reusing photos + data
-- [ ] Offline: IndexedDB queue, pending list, auto-process on reconnect; SW keeps the shell available
-- [ ] Latency logged per scan
+- [x] Save as considered / wishlist; "I bought it" → owned item reusing photos + data
+- [x] Offline: IndexedDB queue, pending list, auto-process on reconnect; SW keeps the shell available
+- [x] Latency logged per scan
 - **Verify:** unit tests for queue (fake-indexeddb) + verdict parsing; e2e scan, offline → online sync,
   convert to owned item.
 
 ### Wrap-up
-- [ ] Screenshots of every main screen at 393×852, light + dark; fix layout issues
-- [ ] IPHONE_TEST.md, SETUP_FOR_ME.md final, summary
+- [x] Screenshots of every main screen at 393×852, light + dark; fix layout issues
+- [x] IPHONE_TEST.md, SETUP_FOR_ME.md final, summary
+
+## Verification results (end of Run 1)
+
+| Check | Result |
+|---|---|
+| `npm run typecheck` | ✅ clean |
+| `npm run lint` | ✅ 0 errors, 0 warnings |
+| `npm test` (Vitest) | ✅ 86 tests in 11 files, including the SQL migration on PGlite (tables, checks, RLS isolation, storage policies) |
+| `npm run build` | ✅ all pages prerender as static shells (item and scan pages partially prerendered) |
+| `npm run e2e` (Playwright, 393×852, Chromium iPhone emulation) | ✅ 19 tests: capture, batch, filters, suggest/wear/👎/swap, disliked never repeated, < 15 items, weather override, builder, profile edits vs regeneration, auto-regeneration, body/moods, cost, guided scan → buy, offline queue → sync, screenshot, offline shell |
+| Screenshots of every main screen, light + dark | ✅ `e2e/screenshots/`, reviewed; layout assertions (no horizontal overflow, ≥ 32 px tap targets) run on each |
+| Manual API smoke test against `next start` | ✅ seed → suggest → wear → feedback → swap → scan (idempotent retry) → wishlist → convert → regenerate → costs |
+
+### "Done when" criteria
+
+| Phase | Criterion | How verified |
+|---|---|---|
+| 0 | Builds, runs locally with auth (or a clearly disabled dev bypass), manifest validates | Build passes; local backend = no login and refuses to run on Vercel (`lib/env.ts`); manifest + icon sizes checked in `tests/unit/pwa.test.ts` |
+| 1 | Add 10 items in a few minutes, tags mostly right | e2e add/batch flows; capture time is stored per item. **Tag quality needs the real AI on real clothes → IPHONE_TEST §2** |
+| 2 | Suggestion in ~5 s; logging what I wear is one tap | e2e wear is a single tap. Mock latency only, **real latency → IPHONE_TEST §3** (time shown in the UI) |
+| 3 | Suggestions stop repeating disliked combinations | Deterministic post-filter; unit tests + e2e (3 rounds of suggestions after a 👎) |
+| 4 | Store scan verdict in < 10 s on mobile data | e2e asserts < 10 s with the mock; **real latency → IPHONE_TEST §4** (time shown next to the verdict) |
+
+### Not in this run
+- Phases 5–6 (fit learning UI, brand size table, outfit-photo itemisation, stats, packing list, iOS
+  Shortcut endpoint). The data model already has `items.fit_areas`, `items.is_reference` (with a toggle
+  in the item form), `brand_sizes` (already read by `evaluatePurchase`) and `wear_log.photo_url`, so
+  these need no breaking migrations.

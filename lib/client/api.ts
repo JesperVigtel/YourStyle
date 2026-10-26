@@ -19,6 +19,7 @@ export async function api<T>(path: string, init?: RequestInit & { json?: unknown
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401 && typeof window !== "undefined" && !path.startsWith("/api/auth")) {
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- session expired: full reload to the login page
     window.location.href = "/login";
   }
   if (!res.ok) throw new ApiError((data as { error?: string }).error ?? `Request failed (${res.status})`, res.status);

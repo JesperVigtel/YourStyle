@@ -26,6 +26,8 @@ export default function SettingsPage() {
 
   const signOut = async () => {
     await api("/api/auth/signout", { method: "POST" });
+    // Full reload so no cached data from the old session survives.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = "/login";
   };
 

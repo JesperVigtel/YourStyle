@@ -51,6 +51,7 @@ export default function TodayPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SuggestRes | null>(null);
+  const [tookMs, setTookMs] = useState<number | null>(null);
   const [cards, setCards] = useState<Record<string, OutfitCardState>>({});
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function TodayPage() {
           today: todayLocal(),
         },
       });
-      console.info(`suggest took ${Math.round(performance.now() - started)} ms`);
+      setTookMs(performance.now() - started);
       setResult(res);
       setCards({});
     } catch (e) {
@@ -266,9 +267,10 @@ export default function TodayPage() {
         {!loading && result && !result.needMoreItems && (
           <div className="mt-4 space-y-4">
             {result.notice && <p className="text-sm text-muted">{result.notice}</p>}
-            {result.avoidedRecent > 0 && (
-              <p className="text-xs text-muted">Skipping {result.avoidedRecent} item(s) worn in the last 3 days.</p>
-            )}
+            <p className="text-xs text-muted">
+              {tookMs !== null && `${result.outfits.length} outfits in ${(tookMs / 1000).toFixed(1)} s. `}
+              {result.avoidedRecent > 0 && `Skipping ${result.avoidedRecent} item(s) worn in the last 3 days.`}
+            </p>
             {result.outfits.map((o, i) => {
               const its = o.item_ids.map((id) => byId.get(id)).filter((x) => !!x);
               const alt = o.swap ? byId.get(o.swap.with_item_id) : null;

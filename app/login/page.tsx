@@ -39,6 +39,8 @@ export default function LoginPage() {
         method: "POST",
         json: { email: email.trim(), token: code.trim() },
       });
+      // Full reload so the new session cookie applies to every request.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = "/today";
     } catch (e) {
       setError(errorMessage(e));

@@ -66,7 +66,7 @@ test("filters and search narrow the grid; archive moves an item out of 'owned'",
   await page.getByRole("searchbox", { name: "Search" }).fill("chelsea");
   await expect(page.getByTestId("item-tile")).toHaveCount(1);
   await page.getByTestId("item-tile").click();
-  await page.getByRole("button", { name: "Archive" }).click();
+  await page.getByRole("button", { name: "Archive", exact: true }).click();
   await expect(page.getByTestId("status-badge")).toHaveText("archived");
   await page.getByRole("link", { name: "Back" }).click();
   await page.getByRole("searchbox", { name: "Search" }).fill("");

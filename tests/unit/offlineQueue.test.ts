@@ -5,7 +5,6 @@ import {
   enqueueScan,
   listQueued,
   processQueue,
-  type QueuedScan,
   type UploadOutcome,
 } from "@/lib/client/offlineQueue";
 
@@ -73,7 +72,7 @@ describe("offline scan queue", () => {
   it("shares one run between concurrent callers (no double upload)", async () => {
     await enqueueScan(scan("a", "1"));
     let uploads = 0;
-    const upload = async (_: QueuedScan): Promise<UploadOutcome> => {
+    const upload = async (): Promise<UploadOutcome> => {
       uploads++;
       await new Promise((r) => setTimeout(r, 20));
       return { result: "done" };

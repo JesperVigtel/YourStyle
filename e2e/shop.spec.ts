@@ -94,5 +94,11 @@ test("the Shop tab opens with no signal (service worker shell)", async ({ page, 
   await page.reload();
   await expect(page.getByLabel("Scan garment")).toBeAttached();
   await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
+
+  // Opening the app offline (start URL /today) and switching to the Shop tab also works.
+  await page.goto("/today").catch(() => undefined);
+  await expect(page.getByRole("button", { name: "Suggest outfits" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Shop" }).click();
+  await expect(page.getByLabel("Scan garment")).toBeAttached();
   await context.setOffline(false);
 });
