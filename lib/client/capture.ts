@@ -4,7 +4,7 @@ import type { TaggedField } from "@/lib/types";
 import { EMPTY_DRAFT, type ItemDraft } from "@/components/ItemForm";
 import { api } from "./api";
 import { removeBackgroundSafe } from "./bgRemoval";
-import { blobToFile, prepareImage } from "./image";
+import { blobToFile, prepareImage, trimTransparent } from "./image";
 
 export type Tags = Omit<
   ItemDraft,
@@ -46,7 +46,7 @@ export async function makeCutout(photo: Blob): Promise<string | null> {
   const cut = await removeBackgroundSafe(photo);
   if (!cut) return null;
   try {
-    return await uploadImage(cut, "cutout");
+    return await uploadImage(await trimTransparent(cut).catch(() => cut), "cutout");
   } catch {
     return null;
   }

@@ -26,6 +26,11 @@ export default function SettingsPage() {
 
   const signOut = async () => {
     await api("/api/auth/signout", { method: "POST" });
+    // Drop offline copies of my data (the scan queue is kept so no unsent photos are lost).
+    if ("caches" in window) {
+      for (const key of await caches.keys())
+        if (key.startsWith("data-") || key.startsWith("pages-")) await caches.delete(key);
+    }
     // Full reload so no cached data from the old session survives.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = "/login";

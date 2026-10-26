@@ -4,11 +4,11 @@ import { BadRequestError } from "@/lib/api";
 import { imageUrl, keyFromImageUrl, type BlobStore } from "@/lib/storage";
 import type { ImageInput } from "@/lib/ai/tasks/images";
 
+// No SVG: it can carry script. (The dev seed writes its SVGs straight to the store.)
 const EXT: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
-  "image/svg+xml": "svg",
 };
 const MAX_BYTES = 8 * 1024 * 1024;
 

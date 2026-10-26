@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import useSWR, { mutate } from "swr";
 import { Collage, type CollageItem } from "@/components/Collage";
-import { VerdictBadge } from "@/components/VerdictBadge";
+import clsx from "clsx";
 import {
   Button,
   Card,
@@ -136,25 +136,49 @@ export default function ScanView() {
 
         {scan && v && x && (
           <>
-            <Card className="flex items-start gap-3">
-              {newPiece && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={newPiece.cutout_url ?? newPiece.photo_url ?? ""}
-                  alt="Scanned garment"
-                  className="h-24 w-24 shrink-0 rounded-xl bg-canvas object-contain"
-                />
+            {/* The decision first, readable at arm's length in a shop: verdict, then the three facts behind it. */}
+            <section
+              aria-label="Verdict"
+              className={clsx(
+                "rounded-3xl p-4",
+                v.verdict === "buy" && "bg-good-soft",
+                v.verdict === "maybe" && "bg-warn-soft",
+                v.verdict === "skip" && "bg-bad-soft",
               )}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <VerdictBadge verdict={v.verdict} />
-                  {latency && <span className="text-xs text-muted">in {(latency / 1000).toFixed(1)} s</span>}
+            >
+              <div className="flex items-center gap-3">
+                {newPiece && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={newPiece.cutout_url ?? newPiece.photo_url ?? ""}
+                    alt="Scanned garment"
+                    className="h-20 w-20 shrink-0 rounded-2xl bg-canvas object-contain"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p
+                    data-testid="verdict-badge"
+                    className={clsx(
+                      "text-4xl font-bold capitalize",
+                      v.verdict === "buy" && "text-good",
+                      v.verdict === "maybe" && "text-warn",
+                      v.verdict === "skip" && "text-bad",
+                    )}
+                  >
+                    {v.verdict}
+                  </p>
+                  <ul className="mt-1 flex flex-wrap gap-x-3 text-sm font-medium">
+                    <li>+{v.outfit_gain.count} outfits</li>
+                    <li>{v.fit.likely_verdict ? `fit: ${v.fit.likely_verdict}` : "fit: unsure"}</li>
+                    {v.overlap.length > 0 && <li>{v.overlap.length} similar owned</li>}
+                  </ul>
                 </div>
-                <p className="mt-2 text-[15px] leading-snug" data-testid="verdict-reason">
-                  {v.reason}
-                </p>
               </div>
-            </Card>
+              <p className="mt-3 text-[15px] leading-snug" data-testid="verdict-reason">
+                {v.reason}
+              </p>
+              {latency && <p className="mt-2 text-xs text-muted">Verdict in {(latency / 1000).toFixed(1)} s</p>}
+            </section>
 
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               {(

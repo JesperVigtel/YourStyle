@@ -133,6 +133,8 @@ export default function WardrobePage() {
             </li>
           ))}
         </ul>
+        {/* Room so the + button never covers the last row. */}
+        <div className="h-16" aria-hidden />
         {items && !filtered.length && (
           <p className="mt-8 text-center text-sm text-muted">
             {items.length ? "Nothing matches these filters." : "No items yet. Tap + to add your first garment."}

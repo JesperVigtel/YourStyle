@@ -6,13 +6,13 @@
   --surface: #ffffff;
   --surface-2: #efede8;
   --ink: #1c1b19;
-  --muted: #6d6a64;
+  --muted: #5f5c56;
   --line: #e2dfd8;
-  --accent: #b4532a;
+  --accent: #a3481f;
   --accent-ink: #ffffff;
   --accent-soft: #f6e6dd;
   --canvas: #ebe8e2;
-  --warn: #9a6700;
+  --warn: #855900;
   --warn-soft: #fff4d6;
   --good: #2f6b3a;
   --good-soft: #e3f1e5;
@@ -26,7 +26,7 @@
     --surface: #1c1c1a;
     --surface-2: #262523;
     --ink: #f1efe9;
-    --muted: #a19d95;
+    --muted: #bab5ac;
     --line: #34322e;
     --accent: #e07a52;
     --accent-ink: #1a0f0a;
@@ -114,4 +114,14 @@ textarea {
   background: linear-gradient(90deg, var(--surface-2) 0, var(--line) 50%, var(--surface-2) 100%);
   background-size: 200px 100%;
   animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

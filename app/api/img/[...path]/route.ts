@@ -11,6 +11,9 @@ export const GET = route<{ path: string[] }>(async ({ store }, _req, { path }) =
       "Content-Type": blob.contentType,
       // Keys are unique per upload and never rewritten, so they can be cached forever (privately).
       "Cache-Control": "private, max-age=31536000, immutable",
+      "X-Content-Type-Options": "nosniff",
+      // Never let a stored file run script if it's opened directly.
+      "Content-Security-Policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox",
     },
   });
 });
